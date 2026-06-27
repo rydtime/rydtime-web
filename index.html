@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RydTime — Your Leh-Ladakh Riding Buddy</title>
+  <meta name="description" content="AI-powered WhatsApp assistant for Indian motorcycle riders planning Leh-Ladakh trips. Routes, permits, gear, AMS, fuel stops — ask anything, anytime." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --clay:      #C4622D;
+      --clay-dark: #9E4A1E;
+      --clay-soft: #F0D5C4;
+      --ink:       #1A1612;
+      --warm-mid:  #4A3728;
+      --sand:      #F7F0E8;
+      --white:     #FDFAF7;
+      --muted:     #7A6558;
+      --wa-green:  #25D366;
+      --wa-dark:   #128C7E;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(253, 250, 247, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(196, 98, 45, 0.12);
+    }
+
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--clay);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--ink);
+    }
+
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--wa-green);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .nav-cta:hover { background: var(--wa-dark); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 7rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+      background: var(--sand);
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: 
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(196,98,45,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 10% 80%, rgba(196,98,45,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Signature element: mountain silhouette */
+    .mountain-silhouette {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 220px;
+      opacity: 0.06;
+    }
+
+    .hero-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      position: relative; z-index: 2;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--clay);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block; width: 24px; height: 2px;
+      background: var(--clay);
+    }
+
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--clay);
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--warm-mid);
+      max-width: 540px;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+      margin-bottom: 3rem;
+    }
+
+    .btn-wa {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: var(--wa-green);
+      color: white;
+      font-weight: 600;
+      font-size: 1.05rem;
+      padding: 0.9rem 1.8rem;
+      border-radius: 100px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-wa:hover { background: var(--wa-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,211,102,0.35); }
+
+    .btn-wa svg { width: 22px; height: 22px; }
+
+    .hero-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+
+    .hero-stats {
+      display: flex; gap: 2.5rem; flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex; flex-direction: column;
+    }
+
+    .stat-number {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--clay);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* ── CHAT PREVIEW ── */
+    .chat-preview {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 40px rgba(26,22,18,0.1);
+      margin-top: 3rem;
+      max-width: 420px;
+    }
+
+    .chat-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(196,98,45,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .chat-avatar {
+      width: 40px; height: 40px;
+      background: var(--clay);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .chat-name { font-weight: 600; font-size: 0.95rem; }
+    .chat-status { font-size: 0.75rem; color: var(--wa-green); }
+
+    .chat-bubble {
+      padding: 0.65rem 1rem;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 0.6rem;
+      max-width: 85%;
+    }
+
+    .bubble-user {
+      background: var(--wa-green);
+      color: white;
+      border-bottom-right-radius: 4px;
+      margin-left: auto;
+    }
+
+    .bubble-bot {
+      background: var(--sand);
+      color: var(--ink);
+      border-bottom-left-radius: 4px;
+    }
+
+    /* ── WHAT YOU CAN ASK ── */
+    .section {
+      padding: 6rem 2rem;
+    }
+
+    .section-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--clay);
+      margin-bottom: 0.75rem;
+    }
+
+    .section h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 3rem;
+    }
+
+    .questions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .question-card {
+      background: var(--sand);
+      border: 1px solid rgba(196,98,45,0.12);
+      border-radius: 16px;
+      padding: 1.2rem 1.4rem;
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: default;
+    }
+
+    .question-card:hover {
+      border-color: var(--clay);
+      transform: translateY(-2px);
+    }
+
+    .q-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .q-text {
+      font-size: 0.92rem;
+      color: var(--warm-mid);
+      line-height: 1.5;
+    }
+
+    /* ── PRICING ── */
+    .pricing-section {
+      padding: 6rem 2rem;
+      background: var(--sand);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .plan-card {
+      background: var(--white);
+      border: 1.5px solid rgba(196,98,45,0.15);
+      border-radius: 20px;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .plan-card.featured {
+      border-color: var(--clay);
+      box-shadow: 0 8px 32px rgba(196,98,45,0.15);
+    }
+
+    .plan-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--clay);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .plan-name {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+
+    .plan-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-price {
+      display: flex; align-items: baseline; gap: 0.3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-price .rupee { font-size: 1.2rem; color: var(--clay); font-weight: 600; }
+    .plan-price .amount {
+      font-family: 'Fraunces', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .plan-price .period { font-size: 0.85rem; color: var(--muted); }
+
+    .plan-features {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 0.6rem;
+    }
+
+    .plan-features li {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.9rem;
+      color: var(--warm-mid);
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: var(--clay);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── FAQ ── */
+    .faq-list {
+      display: flex; flex-direction: column; gap: 0;
+      margin-top: 2.5rem;
+      border-top: 1px solid rgba(196,98,45,0.12);
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(196,98,45,0.12);
+      padding: 1.4rem 0;
+    }
+
+    .faq-q {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 1rem;
+      list-style: none;
+      user-select: none;
+    }
+
+    .faq-q::-webkit-details-marker { display: none; }
+
+    .faq-arrow {
+      color: var(--clay);
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    details[open] .faq-arrow { transform: rotate(45deg); }
+
+    .faq-a {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      padding: 6rem 2rem;
+      text-align: center;
+      background: var(--ink);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(196,98,45,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .final-cta h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      position: relative; z-index: 1;
+    }
+
+    .final-cta h2 em { color: var(--clay-soft); font-style: italic; }
+
+    .final-cta p {
+      color: rgba(253,250,247,0.6);
+      font-size: 1.05rem;
+      margin-bottom: 2.5rem;
+      position: relative; z-index: 1;
+    }
+
+    .final-cta .btn-wa {
+      font-size: 1.1rem;
+      padding: 1rem 2rem;
+      position: relative; z-index: 1;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0F0D0B;
+      padding: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--clay);
+      text-decoration: none;
+    }
+
+    .footer-links {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: rgba(253,250,247,0.45);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--clay-soft); }
+
+    .footer-copy {
+      color: rgba(253,250,247,0.3);
+      font-size: 0.8rem;
+      width: 100%;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      nav { padding: 0.9rem 1.2rem; }
+      .nav-logo { font-size: 1.25rem; }
+      .hero { padding: 6rem 1.2rem 3rem; }
+      .section { padding: 4rem 1.2rem; }
+      .pricing-section { padding: 4rem 1.2rem; }
+      .final-cta { padding: 4rem 1.2rem; }
+      .hero-stats { gap: 1.5rem; }
+      footer { padding: 1.5rem 1.2rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">Ryd<span>Time</span></a>
+    <a class="nav-cta" href="https://wa.me/917827954152?text=Julley%21%20I%20want%20to%20plan%20my%20Leh-Ladakh%20trip%20%F0%9F%8F%8D%EF%B8%8F" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.524 5.855L.057 23.882a.5.5 0 0 0 .61.61l6.027-1.467A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.944 9.944 0 0 1-5.072-1.388l-.363-.214-3.757.914.934-3.757-.235-.374A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      Chat on WhatsApp
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+
+    <!-- Mountain silhouette SVG signature element -->
+    <svg class="mountain-silhouette" viewBox="0 0 1440 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#C4622D" d="M0,220 L0,160 L80,100 L160,140 L240,60 L320,110 L400,40 L480,90 L560,20 L640,80 L720,10 L800,70 L880,30 L960,90 L1040,50 L1120,100 L1200,70 L1280,120 L1360,80 L1440,110 L1440,220 Z"/>
+    </svg>
+
+    <div class="hero-inner">
+      <div style="margin-bottom: 1.25rem;">
+        <span style="display: inline-flex; align-items: center; gap: 8px; background: var(--clay); color: var(--white); font-size: 0.88rem; font-weight: 600; padding: 0.55rem 1.3rem; border-radius: 100px; letter-spacing: 0.01em;">🏍️ No app &nbsp;·&nbsp; No signup &nbsp;·&nbsp; Just WhatsApp</span>
+      </div>
+      <div class="hero-eyebrow">For Indian Motorcycle Riders</div>
+      <h1>Your <em>bro</em> for<br/>Leh-Ladakh & Spiti roads</h1>
+      <p class="hero-sub">Ask anything about your Ladakh ride — routes, permits, gear, AMS, fuel stops, weather, stays — and get real answers in Hindi, Hinglish, or English. On WhatsApp. Anytime.</p>
+
+      <div class="hero-actions">
+        <a class="btn-wa" href="https://wa.me/917827954152?text=Julley%21%20I%20want%20to%20plan%20my%20Leh-Ladakh%20trip%20%F0%9F%8F%8D%EF%B8%8F" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.524 5.855L.057 23.882a.5.5 0 0 0 .61.61l6.027-1.467A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.944 9.944 0 0 1-5.072-1.388l-.363-.214-3.757.914.934-3.757-.235-.374A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          Julley! Start chatting free
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">Thousands</span>
+          <span class="stat-label">of questions answered</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">Unlimited</span>
+          <span class="stat-label">Categories covered</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">3</span>
+          <span class="stat-label">Languages — Hindi, Hinglish, English</span>
+        </div>
+      </div>
+
+      <!-- Chat previews — three side by side -->
+      <div style="display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: 3rem;">
+
+        <!-- Chat 1: Original — Rohtang + AMS -->
+        <div class="chat-preview" style="flex: 1; min-width: 260px;">
+          <div class="chat-header">
+            <div class="chat-avatar">RT</div>
+            <div>
+              <div class="chat-name">RydTime</div>
+              <div class="chat-status">● Online</div>
+            </div>
+          </div>
+          <div class="chat-bubble bubble-user">Bhai Rohtang Pass kab khulta hai?</div>
+          <div class="chat-bubble bubble-bot">Julley bhai! 🏔️ Rohtang Pass generally May end se June first week tak khulta hai — snow clearing ke baad. 2026 mein BRO ne typically June 1-5 ke aas paas opening ki hai. Ek baar BRO ka official update check kar lena departure se pehle!</div>
+          <div class="chat-bubble bubble-user">AMS se kaise bachein?</div>
+          <div class="chat-bubble bubble-bot">Sabse zaruri hai acclimatization bhai — Leh pahunchne ke baad kam se kam 2 din rest karo. Pehle din sirf walk karo, ride mat karo. Paani khub piyo, alcohol avoid karo pehle 48 hrs. Diamox doctor se poochh ke le sakte ho preventive ke taur par. 🙏</div>
+        </div>
+
+        <!-- Chat 2: Solo girl rider -->
+        <div class="chat-preview" style="flex: 1; min-width: 260px;">
+          <div class="chat-header">
+            <div class="chat-avatar">RT</div>
+            <div>
+              <div class="chat-name">RydTime</div>
+              <div class="chat-status">● Online</div>
+            </div>
+          </div>
+          <div class="chat-bubble bubble-user">I'm a solo girl rider. Is Ladakh safe for me?</div>
+          <div class="chat-bubble bubble-bot">Absolutely yes! 🏔️ Ladakh is one of the safest solo destinations for women riders in India. Locals are respectful, army presence is high, and the rider community is incredibly welcoming. A few tips: share your daily route with someone, carry a local SIM, and trust your gut at halts. You've got this! 💪</div>
+          <div class="chat-bubble bubble-user">Any specific routes safer for solo women?</div>
+          <div class="chat-bubble bubble-bot">Srinagar-Leh highway (NH1) is the most well-connected and populated route — best for solo women riders. Manali-Leh is more remote but equally done by solo women. Avoid riding after dark on any route, and always inform your guesthouse of your next day plan. Rider community on both routes is super supportive! 🤝</div>
+        </div>
+
+        <!-- Chat 3: 150cc bike -->
+        <div class="chat-preview" style="flex: 1; min-width: 260px;">
+          <div class="chat-header">
+            <div class="chat-avatar">RT</div>
+            <div>
+              <div class="chat-name">RydTime</div>
+              <div class="chat-status">● Online</div>
+            </div>
+          </div>
+          <div class="chat-bubble bubble-user">Meri bike 150cc hai, kya Ladakh possible hai?</div>
+          <div class="chat-bubble bubble-bot">Bilkul possible hai bhai! 🏍️ 150cc pe Ladakh ride karna challenging zaroor hai lekin bohot log kar chuke hain. High passes pe low gear mein slow aur steady rehna. Tyres, chain, aur brakes top form mein hon pehle. Srinagar route thoda easier hoga smaller bikes ke liye!</div>
+          <div class="chat-bubble bubble-user">Khardung La 150cc pe manage ho jayega?</div>
+          <div class="chat-bubble bubble-bot">Haan bhai, ho jayega! 🏔️ Khardung La (5,359m) pe 150cc bikes regularly jaati hain. Key hai — pillion mat lo, luggage halka rakho, aur slow steady pace rakho. Petrol full bharke nikalna Leh se. Ek baar upar pahunch gaye toh view aisi hogi ki sab struggle worth it lagega! 🙌</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT YOU CAN ASK -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-label">Knowledge Base</div>
+      <h2>Ask anything about your Ladakh ride</h2>
+      <p class="section-sub">RydTime knows Leh-Ladakh the way a fellow rider who's done it 10 times would — in your language, without the fluff.</p>
+
+      <div class="questions-grid">
+        <div class="question-card"><span class="q-icon">🗺️</span><span class="q-text">Delhi se Leh — Manali route better hai ya Srinagar route?</span></div>
+        <div class="question-card"><span class="q-icon">📋</span><span class="q-text">Ladakh ke liye kaunsa permit chahiye aur kaise milta hai?</span></div>
+        <div class="question-card"><span class="q-icon">⛽</span><span class="q-text">Manali se Leh ke beech petrol pumps kahan kahan hain?</span></div>
+        <div class="question-card"><span class="q-icon">🏔️</span><span class="q-text">Khardung La cross karne ka best time of day kya hai?</span></div>
+        <div class="question-card"><span class="q-icon">🤒</span><span class="q-text">AMS ke symptoms kya hain aur kya karna chahiye?</span></div>
+        <div class="question-card"><span class="q-icon">🧥</span><span class="q-text">Ladakh trip ke liye kaunsa gear zaroori hai?</span></div>
+        <div class="question-card"><span class="q-icon">🏕️</span><span class="q-text">Nubra Valley mein budget mein kahan rukein?</span></div>
+        <div class="question-card"><span class="q-icon">📅</span><span class="q-text">Pangong Lake jaane ka best time kab hai?</span></div>
+        <div class="question-card"><span class="q-icon">🏍️</span><span class="q-text">Royal Enfield vs Himalayan — Ladakh ke liye kaunsi better?</span></div>
+        <div class="question-card"><span class="q-icon">💰</span><span class="q-text">15 din ki Ladakh trip ka total budget kitna hoga?</span></div>
+        <div class="question-card"><span class="q-icon">🌦️</span><span class="q-text">July mein Manali-Leh highway pe landslide ka risk hai kya?</span></div>
+        <div class="question-card"><span class="q-icon">🆘</span><span class="q-text">Emergency contacts — Leh mein hospital aur police numbers?</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section">
+    <div class="section-inner">
+      <div class="section-label">Simple Pricing</div>
+      <h2>Start free. Upgrade only if you need more.</h2>
+      <p class="section-sub">15 free questions to try it out. Pay only when you're planning your actual trip.</p>
+
+      <div class="pricing-grid">
+        <div class="plan-card">
+          <div class="plan-name">Free</div>
+          <div class="plan-desc">Try it out, no strings attached</div>
+          <div class="plan-price">
+            <span class="amount" style="font-size:2.2rem;">15 questions</span>
+          </div>
+          <ul class="plan-features">
+            <li>Full answers, no limits on quality</li>
+            <li>Hindi, Hinglish & English</li>
+            <li>Emergency contacts always free</li>
+            <li>No signup, no app</li>
+          </ul>
+        </div>
+
+        <div class="plan-card featured">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-name">Weekly Pass</div>
+          <div class="plan-desc">For your actual planning phase</div>
+          <div class="plan-price">
+            <span class="rupee">₹</span>
+            <span class="amount">49</span>
+            <span class="period">/ 7 days</span>
+          </div>
+          <ul class="plan-features">
+            <li>Unlimited questions for 7 days</li>
+            <li>Full KB access — all 16 categories</li>
+            <li>Route planning & day staging</li>
+            <li>Permit & gear guidance</li>
+          </ul>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-name">Season Pass</div>
+          <div class="plan-desc">Plan, ride, and plan again</div>
+          <div class="plan-price">
+            <span class="rupee">₹</span>
+            <span class="amount">149</span>
+            <span class="period">/ 30 days</span>
+          </div>
+          <ul class="plan-features">
+            <li>Unlimited questions for 30 days</li>
+            <li>Covers Ladakh + Spiti routes</li>
+            <li>Best value for multi-trip riders</li>
+            <li>Everything in Weekly Pass</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-label">FAQ</div>
+      <h2>Questions about RydTime</h2>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary class="faq-q">How does RydTime work? <span class="faq-arrow">+</span></summary>
+          <p class="faq-a">RydTime is a WhatsApp AI assistant. Just send a message to our WhatsApp number and ask anything about your Leh-Ladakh trip — routes, permits, gear, AMS, fuel, stays. You get an answer within seconds, in Hindi, Hinglish, or English depending on how you write.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">Is RydTime information accurate and up to date? <span class="faq-arrow">+</span></summary>
+          <p class="faq-a">RydTime's knowledge base has thousands of Q&As built from researched 2026 sources covering every aspect of Ladakh riding. For fast-changing things like road conditions and pass status, we always recommend a final check with BRO or local sources before you ride — RydTime tells you this too.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">What languages does RydTime support? <span class="faq-arrow">+</span></summary>
+          <p class="faq-a">RydTime automatically detects your language and replies in kind. Write in Hindi, get Hindi answers. Write in Hinglish (the natural mix most riders use), get Hinglish back. Write in English, get English. No settings to change.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">How do I pay for a Trip Pass or Season Pass? <span class="faq-arrow">+</span></summary>
+          <p class="faq-a">When you've used your 15 free questions, RydTime sends you a Razorpay payment link directly on WhatsApp. Pay via UPI, card, or netbanking — your pass activates instantly and you're back to unlimited questions.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">What if I have an emergency on the road? <span class="faq-arrow">+</span></summary>
+          <p class="faq-a">Type "emergency contacts" anytime and RydTime immediately sends you verified Ladakh emergency numbers — hospital, police, ambulance — completely free, no quota used. Safety is never behind a paywall.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">Does RydTime cover Spiti Valley too? <span class="faq-arrow">+</span></summary>
+          <p class="faq-a">Yes! Trip Pass and Season Pass both cover Ladakh and Spiti routes. The free tier covers general Ladakh questions. Spiti-specific route planning is part of the paid tiers.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <h2>Ladakh is calling.<br/><em>Are you ready?</em></h2>
+    <p>Start with 15 free questions. No app, no signup — just WhatsApp.</p>
+    <a class="btn-wa" href="https://wa.me/917827954152?text=Julley%21%20I%20want%20to%20plan%20my%20Leh-Ladakh%20trip%20%F0%9F%8F%8D%EF%B8%8F" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.524 5.855L.057 23.882a.5.5 0 0 0 .61.61l6.027-1.467A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.944 9.944 0 0 1-5.072-1.388l-.363-.214-3.757.914.934-3.757-.235-.374A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      Julley! Start chatting free 🏍️
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a class="footer-logo" href="#">RydTime</a>
+    <div class="footer-links">
+      <a href="https://rydtime.github.io/Privacy-Policy/" target="_blank" rel="noopener">Privacy Policy</a>
+      <a href="https://wa.me/917827954152" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="mailto:dpannk.info@gmail.com">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 RydTime. Made with ❤️ for Indian riders. Julley! 🏔️</div>
+  </footer>
+
+</body>
+</html>
